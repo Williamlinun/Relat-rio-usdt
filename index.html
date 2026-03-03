@@ -8,22 +8,24 @@
     <style>
         :root { --primary: #8a2be2; --bg: #0d0d0f; --sidebar: #16161a; --card: rgba(30, 30, 36, 0.9); --text: #f0f0f0; --usdt: #26a17b; --brl: #ffca3a; --danger: #ff4444; }
         
+        /* TELA DE LOGIN */
         #lock-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); display:flex; justify-content:center; align-items:center; z-index:9999; }
         .login-box { background:var(--sidebar); padding:40px; border-radius:20px; border:1px solid var(--primary); text-align:center; box-shadow: 0 0 20px rgba(138,43,226,0.3); }
         
+        /* SISTEMA */
         #system-content { display:none; width:100%; height:100vh; margin:0; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; }
         
         .sidebar { width: 260px; background: var(--sidebar); display: flex; flex-direction: column; padding: 15px; border-right: 1px solid #333; height: 100vh; box-sizing: border-box; }
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 40px; }
         
-        .new-chat-btn { background: var(--primary); border: none; color: white; padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-weight: bold; width: 100%; }
+        .new-chat-btn { background: var(--primary); border: none; color: white; padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-weight: bold; width: 100%; transition: 0.3s; }
+        .new-chat-btn:hover { filter: brightness(1.2); }
+
         .report-header { background: var(--card); padding: 25px; border-radius: 15px; margin-bottom: 20px; border-left: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
-        
         .grid-inputs { display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 12px; background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; align-items: end; }
         
         input, select, textarea { background: #2a2a32; border: 1px solid #444; padding: 12px; border-radius: 8px; color: white; width: 100%; box-sizing: border-box; }
-        
         table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; margin-top: 10px; }
         th { text-align: left; padding: 12px; color: #777; font-size: 0.75rem; border-bottom: 1px solid #333; }
         td { padding: 12px; border-bottom: 1px solid #222; font-size: 0.9rem; }
@@ -39,7 +41,6 @@
         .status-pendente { background: var(--danger); color: white; }
         .status-recebido { background: var(--usdt); color: white; }
         
-        /* CORES DO SALDO DINÂMICO */
         .saldo-devedor { color: var(--danger) !important; font-weight: bold; }
         .saldo-credito { color: var(--usdt) !important; font-weight: bold; }
         
@@ -50,9 +51,10 @@
 
 <div id="lock-screen">
     <div class="login-box">
-        <h1 style="color:var(--primary)">HB - PAY</h1>
-        <input type="password" id="pass-input" placeholder="Chave de Acesso" style="margin-bottom:15px; text-align:center;">
-        <button class="new-chat-btn" onclick="checkPass()">Entrar</button>
+        <h1 style="color:var(--primary); margin:0;">HB - PAY</h1>
+        <p style="color:#666; font-size:0.8rem; margin-bottom:20px;">ACESSO RESTRITO</p>
+        <input type="password" id="pass-input" placeholder="Digite 1881" style="margin-bottom:15px; text-align:center;">
+        <button class="new-chat-btn" onclick="checkPass()">Entrar no Sistema</button>
     </div>
 </div>
 
@@ -82,7 +84,7 @@
                     <option value="recebido">Recebido</option>
                 </select>
             </div>
-            <button class="new-chat-btn" style="margin:0; height:43px;" onclick="addRegistro()">Lançar USDT</button>
+            <button class="new-chat-btn" style="margin:0; height:43px;" onclick="addRegistro()">Lançar</button>
         </div>
 
         <table>
@@ -91,10 +93,10 @@
         </table>
 
         <div class="stats">
-            <div class="stat-card"><small>TOTAL ACORDADO</small><div id="total-usdt" style="color:var(--usdt); font-weight:bold;">₮ 0,00</div></div>
+            <div class="stat-card"><small>TOTAL USDT</small><div id="total-usdt" style="color:var(--usdt); font-weight:bold;">₮ 0,00</div></div>
             <div class="stat-card"><small>USDT PENDENTE</small><div id="usdt-falta" style="color:var(--danger); font-weight:bold;">₮ 0,00</div></div>
             <div class="stat-card"><small>PAGO (DÉBITOS)</small><div id="total-pago-brl" style="font-weight:bold;">R$ 0,00</div></div>
-            <div class="stat-card" id="card-saldo-final"><small id="label-saldo">SALDO (A PAGAR)</small><div id="saldo-final" style="font-size:1.1rem;">R$ 0,00</div></div>
+            <div class="stat-card" id="card-saldo-final"><small id="label-saldo">SALDO</small><div id="saldo-final" style="font-size:1.1rem;">R$ 0,00</div></div>
         </div>
 
         <div class="payment-section">
@@ -117,17 +119,27 @@
 </div>
 
 <script>
-    const SENHA = "hbpay2026";
-    let db = JSON.parse(localStorage.getItem('hb_pay_v5_db')) || {};
+    // --- CONFIGURAÇÃO DA SENHA ---
+    const SENHA_CORRETA = "1881"; 
+
+    let db = JSON.parse(localStorage.getItem('hb_pay_final_v5')) || {};
     let atual = null;
 
     function checkPass() {
-        if(document.getElementById('pass-input').value === SENHA) {
+        const input = document.getElementById('pass-input').value;
+        if(input === SENHA_CORRETA) {
             document.getElementById('lock-screen').style.display = 'none';
             document.getElementById('system-content').style.display = 'flex';
             renderSidebar();
-        } else { alert("Senha incorreta!"); }
+        } else {
+            alert("Senha Incorreta!");
+        }
     }
+
+    // Permitir Enter na senha
+    document.getElementById('pass-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') checkPass();
+    });
 
     function novoCliente() {
         const nome = prompt("Nome do Fornecedor/Cliente:");
@@ -146,7 +158,7 @@
     }
 
     function addRegistro() {
-        if (!atual) return alert("Selecione um cliente!");
+        if (!atual) return alert("Crie ou selecione um cliente na lateral!");
         const u = parseFloat(document.getElementById('in_usdt').value);
         const r = parseFloat(document.getElementById('in_rate').value);
         const s = document.getElementById('in_status').value;
@@ -174,6 +186,7 @@
         corpo.innerHTML = ''; listaPagos.innerHTML = '';
         
         let tUsdtTotal = 0, tUsdtFalta = 0, tBrlBruto = 0, tPagoBrl = 0;
+        if(!atual || !db[atual]) return;
         const c = db[atual];
 
         c.registros.forEach((reg, i) => {
@@ -195,7 +208,7 @@
             listaPagos.innerHTML += `<div style="margin-bottom:4px;">💰 Enviado: R$ ${p.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})} | Ref: ${p.ref} <span class="no-print" onclick="removerPago(${i})" style="color:red; cursor:pointer; margin-left:8px;">[x]</span></div>`;
         });
 
-        const saldoFinalBrl = tPagoBrl - tBrlBruto; // Positivo = Crédito, Negativo = Dívida
+        const saldoFinalBrl = tPagoBrl - tBrlBruto;
         const saldoElement = document.getElementById('saldo-final');
         const labelSaldo = document.getElementById('label-saldo');
 
@@ -203,8 +216,8 @@
         document.getElementById('usdt-falta').innerText = `₮ ${tUsdtFalta.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
         document.getElementById('total-pago-brl').innerText = `R$ ${tPagoBrl.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
         
-        // Lógica de cores do Saldo
         saldoElement.innerText = `R$ ${saldoFinalBrl.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
+        
         if(saldoFinalBrl < 0) {
             saldoElement.className = "saldo-devedor";
             labelSaldo.innerText = "SALDO (HB-PAY DEVE)";
@@ -219,7 +232,8 @@
     function removerReg(i) { db[atual].registros.splice(i, 1); salvar(); renderTabela(); }
     function removerPago(i) { db[atual].pagos.splice(i, 1); salvar(); renderTabela(); }
     function salvarObs() { if(atual) { db[atual].obs = document.getElementById('obs-field').value; salvar(); } }
-    function salvar() { localStorage.setItem('hb_pay_v5_db', JSON.stringify(db)); }
+    function salvar() { localStorage.setItem('hb_pay_final_v5', JSON.stringify(db)); }
+
     function renderSidebar() {
         const lista = document.getElementById('listaClientes');
         lista.innerHTML = '';
@@ -231,6 +245,13 @@
             lista.appendChild(div);
         }
     }
+
     function gerarPDF() {
+        if(!atual) return;
         const element = document.getElementById('printable-area');
-        const opt = { margin: 10, filename: `HB-PAY-${db[atual].nome}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm',
+        const opt = { margin: 10, filename: `HB-PAY-${db[atual].nome}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+</body>
+</html>
